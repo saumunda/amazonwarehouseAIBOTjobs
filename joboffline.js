@@ -71,13 +71,14 @@ const getJobMessage = async () => {
     });
 
     const jobs = response.data?.data?.searchJobCardsByLocation?.jobCards || [];
+
     const partTimeJobs = jobs.filter(job => job.jobType?.toLowerCase() === "part-time");
     const fullTimeJobs = jobs.filter(job => job.jobType?.toLowerCase() === "full-time");
     const otherJobs = jobs.filter(job => {
       const type = job.jobType?.toLowerCase();
       return type !== "part-time" && type !== "full-time";
     });
-    
+
     if (partTimeJobs.length > 0) {
       return `✅ Part-time jobs found:\n` + partTimeJobs.map(job =>
         `• ${job.jobTitle} (${job.city})`
@@ -94,6 +95,10 @@ const getJobMessage = async () => {
     } else {
       return "❌ No jobs found.";
     }
+
+  } catch (err) {
+    return "❌ Error fetching job data: " + err.message;
+  }
 };
 
 const fetchAndStoreJobs = async () => {
