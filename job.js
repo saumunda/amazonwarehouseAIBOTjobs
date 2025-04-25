@@ -45,7 +45,7 @@ async function getJobMessage() {
 
     const partTimeJobs = jobs.filter(job => job.jobType?.toLowerCase() === "part-time");
 
-    if (partTimeJobs.length === 0) return "❌ No part-time jobs found. Please Try again Later!!!";
+    if (partTimeJobs.length === 0) return "❌ No part-time jobs found.";
 
     const msg = `✅ Part-time jobs found:\n` + partTimeJobs.map(job =>
       `• ${job.jobTitle} (${job.city})`
