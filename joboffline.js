@@ -72,16 +72,28 @@ const getJobMessage = async () => {
 
     const jobs = response.data?.data?.searchJobCardsByLocation?.jobCards || [];
     const partTimeJobs = jobs.filter(job => job.jobType?.toLowerCase() === "part-time");
-
-    if (partTimeJobs.length === 0) return "❌ No part-time jobs found.";
-
-    return `✅ Part-time jobs found:\n` + partTimeJobs.map(job =>
-      `• ${job.jobTitle} (${job.city})`
-    ).join("\n");
-
-  } catch (err) {
-    return "❌ Error fetching job data: " + err.message;
-  }
+    const fullTimeJobs = jobs.filter(job => job.jobType?.toLowerCase() === "full-time");
+    const otherJobs = jobs.filter(job => {
+      const type = job.jobType?.toLowerCase();
+      return type !== "part-time" && type !== "full-time";
+    });
+    
+    if (partTimeJobs.length > 0) {
+      return `✅ Part-time jobs found:\n` + partTimeJobs.map(job =>
+        `• ${job.jobTitle} (${job.city})`
+      ).join("\n");
+    } else if (fullTimeJobs.length > 0) {
+      return `❗ Only full-time jobs available:\n` + fullTimeJobs.map(job =>
+        `• ${job.jobTitle} (${job.city})`
+      ).join("\n");
+    } else if (otherJobs.length > 0) {
+      const jobTypes = [...new Set(otherJobs.map(job => job.jobType))];
+      return `📌 Other job(s) available [${jobTypes.join(", ")}]:\n` + otherJobs.map(job =>
+        `• ${job.jobTitle} (${job.city})`
+      ).join("\n");
+    } else {
+      return "❌ No jobs found.";
+    }
 };
 
 const fetchAndStoreJobs = async () => {
