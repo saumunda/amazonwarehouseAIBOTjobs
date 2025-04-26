@@ -1,9 +1,23 @@
-// job.js
 require("dotenv").config();
+const express = require("express");
 const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
+const bodyParser = require("body-parser");
+const cron = require("node-cron");
+
+const app = express();
+app.use(bodyParser.json());
 
 const API_URL = "https://qy64m4juabaffl7tjakii4gdoa.appsync-api.eu-west-1.amazonaws.com/graphql";
 const AUTH_TOKEN = `Bearer ${process.env.AUTH_TOKEN}`;
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+const TELEGRAM_IDS = [
+  process.env.TELEGRAM_USER_ID,
+ // process.env.TELEGRAM_USER_ID2,
+];
+const DATA_FILE = path.join(__dirname, "data.json");
+const LAST_MSG_FILE = path.join(__dirname, "lastMessage.json");
 
 const GRAPHQL_QUERY = {
   operationName: "searchJobCardsByLocation",
@@ -30,6 +44,23 @@ const GRAPHQL_QUERY = {
       rangeFilters: [],
     },
   },
+};
+
+const log = (msg) => console.log(`[${new Date().toISOString()}] ${msg}`);
+
+const sendToTelegramUsers = async (message) => {
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+  for (const id of TELEGRAM_IDS) {
+    if (!id) continue;
+    try {
+      await axios.post(url, {
+        chat_id: id,
+        text: message,
+      });
+    } catch (err) {
+      log(`❌ Failed to send message to ${id}: ${err.message}`);
+    }
+  }
 };
 
 async function getJobMessage() {
@@ -71,5 +102,98 @@ async function getJobMessage() {
     return "❌ Error fetching job data: " + err.message;
   }
 };
+
+// Load last message if exists
+let lastMessageSent = "";
+if (fs.existsSync(LAST_MSG_FILE)) {
+  try {
+    const data = fs.readFileSync(LAST_MSG_FILE, "utf-8");
+    lastMessageSent = JSON.parse(data)?.message || "";
+  } catch (err) {
+    console.error("Failed to read lastMessage.json:", err.message);
+  }
+}
+
+const fetchAndStoreJobs = async () => {
+  try {
+    const jobMsg = await getJobMessage();
+
+    if (jobMsg !== lastMessageSent) {
+      log("🔁 Sending updated job message...");
+      await sendToTelegramUsers(jobMsg);
+      lastMessageSent = jobMsg;
+      fs.writeFileSync(LAST_MSG_FILE, JSON.stringify({ message: jobMsg }, null, 2));
+    } else {
+      log("⏸ No new job update to send.");
+    }
+  } catch (err) {
+    const msg = "❌ Error running scheduled job check: " + err.message;
+    log(msg);
+    await sendToTelegramUsers(msg);
+  }
+};
+
+// 🛠 1-minute interval for 10 minutes
+const startOneMinuteJobInterval = () => {
+  const msg = "⏳ Started 1-minute interval fetch for 10 minutes...";
+  log(msg);
+  sendToTelegramUsers(msg);
+  
+  let count = 0;
+  const intervalId = setInterval(async () => {
+    await fetchAndStoreJobs();
+    count++;
+    if (count >= 10) {  // Stop after 10 fetches (10 minutes)
+      clearInterval(intervalId);
+      const msg = "🛑 Search Paused. Stay Tuned — The Next Hunt Begins in an Hour!";
+      log(msg);
+      sendToTelegramUsers(msg);
+    }
+    }, 1000); // 1 minute
+};
+
+// 🛠 1-minute interval for 10 minutes
+const start20MinuteJobInterval = () => {
+  const msg = "⏳ Started 1-second interval fetch for 20 minutes...";
+  log(msg);
+  sendToTelegramUsers(msg);
+  
+  let count = 0;
+  const intervalId = setInterval(async () => {
+    await fetchAndStoreJobs();
+    count++;
+    if (count >= 1200) {  // Stop after 1200 fetches (20 minutes)
+      clearInterval(intervalId);
+      const msg = "🛑 Search Paused. Stay Tuned — The Next Hunt Begins in an Hour!";
+      log(msg);
+      sendToTelegramUsers(msg);
+    }
+    }, 1000); // 1 minute
+};
+
+// Schedule at 11:00 AM London time
+cron.schedule("0 11 * * *", async () => {
+  const msg = "🕚 Clock’s Ticking! Job Check Set for 11:00 AM London Time.";
+  log(msg);
+  await sendToTelegramUsers(msg);
+  startOneMinuteJobInterval();
+}, { timezone: "Europe/London" });
+
+// Schedule at 11:00 PM London time
+cron.schedule("0 23 * * *", async () => {
+  log("🕚 Countdown Active: Job Status Update at 11:00 PM London Time.");
+  await sendToTelegramUsers("🕚 Countdown Active: Job Status Update at 11:00 PM London Time.");
+ // start20MinuteJobInterval();
+}, { timezone: "Europe/London" });
+
+// Initial run on server start (optional)
+fetchAndStoreJobs();
+startOneMinuteJobInterval();
+//start20MinuteJobInterval();
+
+// setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
+// setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
+// setInterval(fetchAndStoreJobs, 1000); // every 1 second
+//setInterval(fetchAndStoreJobs, 10 * 60 * 1000); // every 10 minutes
 
 module.exports = { getJobMessage };
