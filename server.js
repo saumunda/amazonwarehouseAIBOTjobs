@@ -4,6 +4,7 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const bodyParser = require("body-parser");
+const cron = require("node-cron");
 
 const app = express();
 app.use(bodyParser.json());
@@ -14,6 +15,7 @@ const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_IDS = [
   process.env.TELEGRAM_USER_ID,
   process.env.TELEGRAM_USER_ID2,
+  process.env.TELEGRAM_USER_ID3,
 ];
 const DATA_FILE = path.join(__dirname, "data.json");
 const LAST_MSG_FILE = path.join(__dirname, "lastMessage.json");
@@ -62,7 +64,7 @@ const sendToTelegramUsers = async (message) => {
   }
 };
 
-async function getJobMessage() {
+const getJobMessage = async () => {
   try {
     const response = await axios.post(API_URL, GRAPHQL_QUERY, {
       headers: {
@@ -102,7 +104,7 @@ async function getJobMessage() {
   }
 };
 
-// Load last sent message from file
+// Load last message if exists
 let lastMessageSent = "";
 if (fs.existsSync(LAST_MSG_FILE)) {
   try {
@@ -132,11 +134,32 @@ const fetchAndStoreJobs = async () => {
   }
 };
 
-// Polling job alert every 1 seconds
-setInterval(fetchAndStoreJobs, 1000);
-fetchAndStoreJobs(); // Initial call
+// 🕚 Run once daily at 11:00 AM London time (BST/GMT auto-adjusted)
+cron.schedule("0 11 * * *", async () => {
+  log("🕚 Scheduled job check at 11:00 AM London time...");
+  await fetchAndStoreJobs();
+}, {
+  timezone: "Europe/London"
+});
 
-// Telegram webhook handler
+cron.schedule("0 23 * * *", async () => {
+    log("🕚 Scheduled job check at 11:00 PM London time...");
+    await fetchAndStoreJobs();
+  }, {
+    timezone: "Europe/London"
+  });
+
+  cron.schedule("15 03 * * *", async () => {
+    log("🕚 Scheduled job check at 03:15 AM London time...");
+    await fetchAndStoreJobs();
+  }, {
+    timezone: "Europe/London"
+  });
+
+// Optional: Run once at startup
+// fetchAndStoreJobs();
+
+// Telegram Webhook
 app.post(`/webhook/${TELEGRAM_TOKEN}`, async (req, res) => {
   const message = req.body.message;
   if (!message || !message.text) return res.sendStatus(200);
@@ -157,13 +180,10 @@ app.post(`/webhook/${TELEGRAM_TOKEN}`, async (req, res) => {
   res.sendStatus(200);
 });
 
-// Health check
+// Health Check
 app.get("/", (req, res) => res.send("✅ Bot is live."));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
-module.exports = { getJobMessage };
-
