@@ -135,9 +135,12 @@ const fetchAndStoreJobs = async () => {
 };
 
 // 🕚 Run once daily at 11:00 AM London time (BST/GMT auto-adjusted)
-cron.schedule("0 11 * * *", async () => {
-  log("🕚 Scheduled job check at 11:00 AM London time...");
+cron.schedule("30 03 * * *", async () => {
+  log("🕚 Scheduled job check at 03:30 AM London time...");
+  const sch = "🕚 Scheduled job check at 03:30 AM London time...";
   await fetchAndStoreJobs();
+  await sendToTelegramUsers(sch);
+
 }, {
   timezone: "Europe/London"
 });
@@ -149,8 +152,8 @@ cron.schedule("0 23 * * *", async () => {
     timezone: "Europe/London"
   });
 
-  cron.schedule("15 03 * * *", async () => {
-    log("🕚 Scheduled job check at 03:15 AM London time...");
+  cron.schedule("00 11 * * *", async () => {
+    log("🕚 Scheduled job check at 11:00 AM London time...");
     await fetchAndStoreJobs();
   }, {
     timezone: "Europe/London"
