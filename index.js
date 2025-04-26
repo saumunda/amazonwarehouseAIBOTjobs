@@ -13,8 +13,8 @@ const API_URL = "https://qy64m4juabaffl7tjakii4gdoa.appsync-api.eu-west-1.amazon
 const AUTH_TOKEN = `Bearer ${process.env.AUTH_TOKEN}`;
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_IDS = [
-  process.env.TELEGRAM_USER_ID,
-  process.env.TELEGRAM_USER_ID2,
+  process.env.TELEGRAM_USER_ID
+  // process.env.TELEGRAM_USER_ID2,
 ];
 const DATA_FILE = path.join(__dirname, "data.json");
 const LAST_MSG_FILE = path.join(__dirname, "lastMessage.json");
@@ -134,11 +134,12 @@ const fetchAndStoreJobs = async () => {
 };
 
 // 🕚 Run once daily at 11:00 AM London time (BST/GMT auto-adjusted)
-cron.schedule("00 05 * * *", async () => {
-  log("🕚 Scheduled job check at 05:00 AM London time...");
-  const sch = "🕚 Scheduled job check at 05:00 AM London time...";
-  await fetchAndStoreJobs();
-  await sendToTelegramUsers(sch);
+cron.schedule("15 17 * * *", async () => {
+  log("🕚 Scheduled job check at 1700 HRS London time...");
+  const msg = "🕚 Scheduled job check at 1700 HRS  London time...";
+  //await fetchAndStoreJobs();
+  setInterval(fetchAndStoreJobs, 1000);
+  await sendToTelegramUsers(msg);
 }, {
   timezone: "Europe/London"
 });
@@ -207,11 +208,12 @@ cron.schedule("00 23 * * *", async () => {
 });
 
 // Optional: Run once at startup
-// fetchAndStoreJobs();
+fetchAndStoreJobs(); //INTIAL CALL
 
-// Polling job alert every 1 seconds
-// setInterval(fetchAndStoreJobs, 1000);
-fetchAndStoreJobs(); // Initial call
+// setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
+// setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
+// setInterval(fetchAndStoreJobs, 1000); // every 1 second
+//setInterval(fetchAndStoreJobs, 10 * 60 * 1000); // every 10 minutes
 
 // Telegram Webhook
 app.post(`/webhook/${TELEGRAM_TOKEN}`, async (req, res) => {
