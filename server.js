@@ -135,11 +135,12 @@ const fetchAndStoreJobs = async () => {
 };
 
 // 🕚 Run once daily at 11:00 AM London time (BST/GMT auto-adjusted)
-cron.schedule("30 03 * * *", async () => {
-  log("🕚 Scheduled job check at 03:30 AM London time...");
+cron.schedule("00 04 * * *", async () => {
+  log("🕚 Scheduled job check at 04:00 AM London time...");
   const sch = "🕚 Scheduled job check at 03:30 AM London time...";
   await fetchAndStoreJobs();
   await sendToTelegramUsers(sch);
+
 
 }, {
   timezone: "Europe/London"
@@ -161,6 +162,10 @@ cron.schedule("0 23 * * *", async () => {
 
 // Optional: Run once at startup
 // fetchAndStoreJobs();
+
+// Polling job alert every 1 seconds
+setInterval(fetchAndStoreJobs, 1000);
+fetchAndStoreJobs(); // Initial call
 
 // Telegram Webhook
 app.post(`/webhook/${TELEGRAM_TOKEN}`, async (req, res) => {

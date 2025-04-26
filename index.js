@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const axios = require("axios");
-const { getJobMessage } = require("./server"); // import the job logic
+const { getJobMessage } = require("./job"); // import the job logic
 
 const app = express();
 app.use(bodyParser.json());
