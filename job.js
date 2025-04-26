@@ -14,7 +14,7 @@ const AUTH_TOKEN = `Bearer ${process.env.AUTH_TOKEN}`;
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_IDS = [
   process.env.TELEGRAM_USER_ID,
- // process.env.TELEGRAM_USER_ID2,
+  process.env.TELEGRAM_USER_ID2,
 ];
 const DATA_FILE = path.join(__dirname, "data.json");
 const LAST_MSG_FILE = path.join(__dirname, "lastMessage.json");
@@ -103,7 +103,7 @@ async function getJobMessage() {
   }
 };
 
-// Load last message if exists
+// Load last message if it exists
 let lastMessageSent = "";
 if (fs.existsSync(LAST_MSG_FILE)) {
   try {
@@ -143,13 +143,13 @@ const startOneMinuteJobInterval = () => {
   const intervalId = setInterval(async () => {
     await fetchAndStoreJobs();
     count++;
-    if (count >= 10) {  // Stop after 10 fetches (10 minutes)
+    if (count >= 20) {  // Stop after 20 fetches (20 minutes)
       clearInterval(intervalId);
-      const msg = "🛑 Search Paused. Stay Tuned — The Next Hunt Begins in an Hour!";
+      const msg = "🛑 Search Stopped. Stay Tuned — The Next Hunt Begins At 11:00 PM!";
       log(msg);
       sendToTelegramUsers(msg);
     }
-    }, 1000); // 1 minute
+    }, 1 * 60 * 1000); // 1 minute
 };
 
 // 🛠 1-minute interval for 10 minutes
@@ -164,16 +164,16 @@ const start20MinuteJobInterval = () => {
     count++;
     if (count >= 1200) {  // Stop after 1200 fetches (20 minutes)
       clearInterval(intervalId);
-      const msg = "🛑 Search Paused. Stay Tuned — The Next Hunt Begins in an Hour!";
+      const msg = "💤 System Standby... 🖥️ Scheduled Job Check: 11:00 AM London Time.";
       log(msg);
       sendToTelegramUsers(msg);
     }
-    }, 1000); // 1 minute
+    }, 1000); // 1 sec intervals
 };
 
 // Schedule at 11:00 AM London time
 cron.schedule("0 11 * * *", async () => {
-  const msg = "🕚 Clock’s Ticking! Job Check Set for 11:00 AM London Time.";
+  const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.";
   log(msg);
   await sendToTelegramUsers(msg);
   startOneMinuteJobInterval();
@@ -183,7 +183,7 @@ cron.schedule("0 11 * * *", async () => {
 cron.schedule("0 23 * * *", async () => {
   log("🕚 Countdown Active: Job Status Update at 11:00 PM London Time.");
   await sendToTelegramUsers("🕚 Countdown Active: Job Status Update at 11:00 PM London Time.");
- // start20MinuteJobInterval();
+  start20MinuteJobInterval();
 }, { timezone: "Europe/London" });
 
 // Initial run on server start (optional)
@@ -196,4 +196,4 @@ startOneMinuteJobInterval();
 // setInterval(fetchAndStoreJobs, 1000); // every 1 second
 //setInterval(fetchAndStoreJobs, 10 * 60 * 1000); // every 10 minutes
 
-module.exports = { getJobMessage };
+module.exports = { startOneMinuteJobInterval };
