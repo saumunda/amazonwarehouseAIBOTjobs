@@ -196,4 +196,4 @@ startOneMinuteJobInterval();
 // setInterval(fetchAndStoreJobs, 1000); // every 1 second
 //setInterval(fetchAndStoreJobs, 10 * 60 * 1000); // every 10 minutes
 
-module.exports = { startOneMinuteJobInterval };
+module.exports = { getJobMessage };
