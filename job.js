@@ -63,7 +63,7 @@ const sendToTelegramUsers = async (message) => {
   }
 };
 
-async function getJobMessage() {
+const getJobMessage = async () =>  {
   try {
     const response = await axios.post(API_URL, GRAPHQL_QUERY, {
       headers: {
