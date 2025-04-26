@@ -14,7 +14,7 @@ const AUTH_TOKEN = `Bearer ${process.env.AUTH_TOKEN}`;
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_IDS = [
   process.env.TELEGRAM_USER_ID,
-  process.env.TELEGRAM_USER_ID2,
+ // process.env.TELEGRAM_USER_ID2,
 ];
 const DATA_FILE = path.join(__dirname, "data.json");
 const LAST_MSG_FILE = path.join(__dirname, "lastMessage.json");
