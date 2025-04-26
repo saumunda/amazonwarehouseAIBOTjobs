@@ -15,7 +15,6 @@ const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_IDS = [
   process.env.TELEGRAM_USER_ID,
   process.env.TELEGRAM_USER_ID2,
-  process.env.TELEGRAM_USER_ID3,
 ];
 const DATA_FILE = path.join(__dirname, "data.json");
 const LAST_MSG_FILE = path.join(__dirname, "lastMessage.json");
@@ -135,36 +134,83 @@ const fetchAndStoreJobs = async () => {
 };
 
 // 🕚 Run once daily at 11:00 AM London time (BST/GMT auto-adjusted)
-cron.schedule("00 04 * * *", async () => {
-  log("🕚 Scheduled job check at 04:00 AM London time...");
-  const sch = "🕚 Scheduled job check at 03:30 AM London time...";
+cron.schedule("00 05 * * *", async () => {
+  log("🕚 Scheduled job check at 05:00 AM London time...");
+  const sch = "🕚 Scheduled job check at 05:00 AM London time...";
   await fetchAndStoreJobs();
   await sendToTelegramUsers(sch);
-
-
 }, {
   timezone: "Europe/London"
 });
 
-cron.schedule("0 23 * * *", async () => {
-    log("🕚 Scheduled job check at 11:00 PM London time...");
-    await fetchAndStoreJobs();
-  }, {
-    timezone: "Europe/London"
-  });
+cron.schedule("00 06 * * *", async () => {
+  log("🕚 Scheduled job check at 06:00 AM London time...");
+  const msg = "🕚 Scheduled job check at 06:00 AM London time...";
+  await fetchAndStoreJobs();
+  await sendToTelegramUsers(msg);
+}, {
+  timezone: "Europe/London"
+});
 
-  cron.schedule("00 11 * * *", async () => {
-    log("🕚 Scheduled job check at 11:00 AM London time...");
-    await fetchAndStoreJobs();
-  }, {
-    timezone: "Europe/London"
-  });
+cron.schedule("00 07 * * *", async () => {
+  log("🕚 Scheduled job check at 07:00 AM London time...");
+  const sch = "🕚 Scheduled job check at 07:00 AM London time...";
+  await fetchAndStoreJobs();
+  await sendToTelegramUsers(sch);
+}, {
+  timezone: "Europe/London"
+});
+
+cron.schedule("00 08 * * *", async () => {
+  log("🕚 Scheduled job check at 08:00 AM London time...");
+  const msg = "🕚 Scheduled job check at 08:00 AM London time...";
+  await fetchAndStoreJobs();
+  await sendToTelegramUsers(msg);
+}, {
+  timezone: "Europe/London"
+});
+
+cron.schedule("00 09 * * *", async () => {
+  log("🕚 Scheduled job check at 09:00 AM London time...");
+  const sch = "🕚 Scheduled job check at 09:00 AM London time...";
+  await fetchAndStoreJobs();
+  await sendToTelegramUsers(sch);
+}, {
+  timezone: "Europe/London"
+});
+
+cron.schedule("00 10 * * *", async () => {
+  log("🕚 Scheduled job check at 10:00 AM London time...");
+  const sch = "🕚 Scheduled job check at 10:00 AM London time...";
+  await fetchAndStoreJobs();
+  await sendToTelegramUsers(sch);
+}, {
+  timezone: "Europe/London"
+});
+
+cron.schedule("00 11 * * *", async () => {
+  log("🕚 Scheduled job check at 11:00 AM London time...");
+  const sch = "🕚 Scheduled job check at 11:00 AM London time...";
+  await fetchAndStoreJobs();
+  await sendToTelegramUsers(sch);
+}, {
+  timezone: "Europe/London"
+});
+
+cron.schedule("00 23 * * *", async () => {
+  log("🕚 Scheduled job check at 11:00 PM London time...");
+  const sch = "🕚 Scheduled job check at 11:00 PM London time...";
+  await fetchAndStoreJobs();
+  await sendToTelegramUsers(sch);
+}, {
+  timezone: "Europe/London"
+});
 
 // Optional: Run once at startup
 // fetchAndStoreJobs();
 
 // Polling job alert every 1 seconds
-setInterval(fetchAndStoreJobs, 1000);
+// setInterval(fetchAndStoreJobs, 1000);
 fetchAndStoreJobs(); // Initial call
 
 // Telegram Webhook
