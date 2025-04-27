@@ -188,7 +188,7 @@ cron.schedule("0 23 * * *", async () => {
 // Initial run on server start (optional)
 fetchAndStoreJobs();
 //startOneMinuteJobInterval();
-//start20MinuteJobInterval();
+start20MinuteJobInterval();
 
 // setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
 // setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
