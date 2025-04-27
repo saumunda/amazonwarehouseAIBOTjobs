@@ -173,9 +173,8 @@ const start20MinuteJobInterval = () => {
 
 // Schedule at 11:00 AM London time
 cron.schedule("0 11 * * *", async () => {
-  const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.";
-  log(msg);
-  await sendToTelegramUsers(msg);
+  log("🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.");
+  await sendToTelegramUsers("🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.");
   startOneMinuteJobInterval();
 }, { timezone: "Europe/London" });
 
