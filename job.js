@@ -139,17 +139,17 @@ const startOneMinuteJobInterval = () => {
   log(msg);
   sendToTelegramUsers(msg);
   
-  let count = 0;
+  let counta = 0;
   const intervalId = setInterval(async () => {
     await fetchAndStoreJobs();
-    count++;
-    if (count >= 20) {  // Stop after 20 fetches (20 minutes)
+    counta++;
+    if (counta >= 40) {  // Stop after 40 fetches (20 minutes)
       clearInterval(intervalId);
       const msg = "🛑 Search Stopped. Stay Tuned — The Next Hunt Begins At 11:00 PM!";
       log(msg);
       sendToTelegramUsers(msg);
     }
-    }, 1 * 60 * 1000); // 1 minute
+    }, 30 * 1000); // 1 minute
 };
 
 // 🛠 1-minute interval for 10 minutes
@@ -172,23 +172,25 @@ const start20MinuteJobInterval = () => {
 };
 
 // Schedule at 11:00 AM London time
-cron.schedule("0 11 * * *", async () => {
-  log("🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.");
-  await sendToTelegramUsers("🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.");
+cron.schedule("00 11 * * *", async () => {
+  const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.";
+  log(msg);
+  sendToTelegramUsers(msg);
   startOneMinuteJobInterval();
 }, { timezone: "Europe/London" });
 
 // Schedule at 11:00 PM London time
-cron.schedule("0 23 * * *", async () => {
-  log("🕚 Countdown Active: Job Status Update at 11:00 PM London Time.");
-  await sendToTelegramUsers("🕚 Countdown Active: Job Status Update at 11:00 PM London Time.");
+cron.schedule("00 23 * * *", async () => {
+  const msg = "🕚 Countdown Active: Job Status Update at 11:00 PM London Time.";
+  log(msg);
+  sendToTelegramUsers(msg);
   start20MinuteJobInterval();
 }, { timezone: "Europe/London" });
 
 // Initial run on server start (optional)
 fetchAndStoreJobs();
 //startOneMinuteJobInterval();
-start20MinuteJobInterval();
+//start20MinuteJobInterval();
 
 // setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
 // setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
