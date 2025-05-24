@@ -13,7 +13,7 @@ const API_URL = "https://qy64m4juabaffl7tjakii4gdoa.appsync-api.eu-west-1.amazon
 const AUTH_TOKEN = `Bearer ${process.env.AUTH_TOKEN}`;
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_IDS = [
-  //process.env.TELEGRAM_USER_ID
+  process.env.TELEGRAM_USER_ID,
   process.env.TELEGRAM_USER_ID2
 ];
 const DATA_FILE = path.join(__dirname, "data.json");
@@ -170,7 +170,7 @@ cron.schedule("01 23 * * *", async () => {
 
 // Initial run on server start (optional)
 fetchAndStoreJobs();
-start20MinuteJobInterval();
+//start20MinuteJobInterval();
 
 // setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
 // setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
