@@ -13,8 +13,8 @@ const API_URL = "https://qy64m4juabaffl7tjakii4gdoa.appsync-api.eu-west-1.amazon
 const AUTH_TOKEN = `Bearer ${process.env.AUTH_TOKEN}`;
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_IDS = [
-  process.env.TELEGRAM_USER_ID,
-  process.env.TELEGRAM_USER_ID2,
+  process.env.TELEGRAM_USER_ID
+  // process.env.TELEGRAM_USER_ID2,
 ];
 const DATA_FILE = path.join(__dirname, "data.json");
 const LAST_MSG_FILE = path.join(__dirname, "lastMessage.json");
@@ -153,7 +153,7 @@ const start20MinuteJobInterval = () => {
 };
 
 // Schedule at 11:00 AM/PM London time
-cron.schedule("0 11 * * *", async () => {
+cron.schedule("01 11 * * *", async () => {
   const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.";
   log(msg);
   sendToTelegramUsers(msg);
@@ -161,7 +161,7 @@ cron.schedule("0 11 * * *", async () => {
 }, { timezone: "Europe/London" });
 
 // Schedule at 11:00 PM London time
-cron.schedule("0 23 * * *", async () => {
+cron.schedule("01 23 * * *", async () => {
   const msg = "🕚 Countdown Active: Job Status Update at 11:00 PM London Time.";
   log(msg);
   sendToTelegramUsers(msg);
@@ -170,7 +170,7 @@ cron.schedule("0 23 * * *", async () => {
 
 // Initial run on server start (optional)
 fetchAndStoreJobs();
-start20MinuteJobInterval();
+// start20MinuteJobInterval();
 
 // setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
 // setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
