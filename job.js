@@ -4,7 +4,7 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const bodyParser = require("body-parser");
-const cron = require("node-cron");
+const { CronJob } = require("cron"); // ✅ Correct cron package
 
 const app = express();
 app.use(bodyParser.json());
@@ -77,104 +77,4 @@ const getJobMessage = async () =>  {
     const partTimeJobs = jobs.filter(job => job.jobType?.toLowerCase() === "part-time");
     const fullTimeJobs = jobs.filter(job => job.jobType?.toLowerCase() === "full-time");
     const otherJobs = jobs.filter(job => {
-      const type = job.jobType?.toLowerCase();
-      return type !== "part-time" && type !== "full-time";
-    });
-
-    if (partTimeJobs.length > 0) {
-      return `✅ Part-time jobs found:\n` + partTimeJobs.map(job =>
-        `• ${job.jobTitle} (${job.city})`
-      ).join("\n");
-    } else if (fullTimeJobs.length > 0) {
-      return `❗ Only full-time jobs available:\n` + fullTimeJobs.map(job =>
-        `• ${job.jobTitle} (${job.city})`
-      ).join("\n");
-    } else if (otherJobs.length > 0) {
-      const jobTypes = [...new Set(otherJobs.map(job => job.jobType))];
-      return `📌 Other job(s) available [${jobTypes.join(", ")}]:\n` + otherJobs.map(job =>
-        `• ${job.jobTitle} (${job.city})`
-      ).join("\n");
-    } else {
-      return "❌ No jobs found.";
-    }
-
-  } catch (err) {
-    return "❌ Error fetching job data: " + err.message;
-  }
-};
-
-// Load last message if it exists
-let lastMessageSent = "";
-if (fs.existsSync(LAST_MSG_FILE)) {
-  try {
-    const data = fs.readFileSync(LAST_MSG_FILE, "utf-8");
-    lastMessageSent = JSON.parse(data)?.message || "";
-  } catch (err) {
-    console.error("Failed to read lastMessage.json:", err.message);
-  }
-}
-
-const fetchAndStoreJobs = async () => {
-  try {
-    const jobMsg = await getJobMessage();
-
-    if (jobMsg !== lastMessageSent) {
-      log("🔁 Sending updated job message...");
-      await sendToTelegramUsers(jobMsg);
-      lastMessageSent = jobMsg;
-      fs.writeFileSync(LAST_MSG_FILE, JSON.stringify({ message: jobMsg }, null, 2));
-    } else {
-      log("⏸ No new job update to send.");
-    }
-  } catch (err) {
-    const msg = "❌ Error running scheduled job check: " + err.message;
-    log(msg);
-    await sendToTelegramUsers(msg);
-  }
-};
-
-// 🛠 1-minute interval for 10 minutes
-const start20MinuteJobInterval = () => {
-  const msg = "⏳ Started 1-second interval fetch for 20 minutes...";
-  log(msg);
-  sendToTelegramUsers(msg);
-  
-  let count = 0;
-  const intervalId = setInterval(async () => {
-    await fetchAndStoreJobs();
-    count++;
-    if (count >= 1200) {  // Stop after 1200 fetches (20 minutes)
-      clearInterval(intervalId);
-      const msg = "💤 System Standby... 🖥️ Scheduled Job Check: After 12:00 HRS London Time.";
-      log(msg);
-      sendToTelegramUsers(msg);
-    }
-    }, 1000); // 1 sec intervals
-};
-
-// Schedule at 11:00 AM/PM London time
-cron.schedule("01 11 * * *", async () => {
-  const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.";
-  log(msg);
-  sendToTelegramUsers(msg);
-  start20MinuteJobInterval();
-}, { timezone: "Europe/London" });
-
-// Schedule at 11:00 PM London time
-cron.schedule("01 23 * * *", async () => {
-  const msg = "🕚 Countdown Active: Job Status Update at 11:00 PM London Time.";
-  log(msg);
-  sendToTelegramUsers(msg);
-  start20MinuteJobInterval();
-}, { timezone: "Europe/London" });
-
-// Initial run on server start (optional)
-fetchAndStoreJobs();
-start20MinuteJobInterval();
-
-// setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
-// setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
-// setInterval(fetchAndStoreJobs, 1000); // every 1 second
-//setInterval(fetchAndStoreJobs, 10 * 60 * 1000); // every 10 minutes
-
-module.exports = { getJobMessage };
+      const type = job.jobType?.toLowerC
