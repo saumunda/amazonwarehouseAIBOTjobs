@@ -152,16 +152,16 @@ const start20MinuteJobInterval = () => {
     }, 1000); // 1 sec intervals
 };
 
-// Schedule at 11:00 AM/PM London time
-cron.schedule("01 11 * * *", async () => {
-  const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.";
-  log(msg);
-  sendToTelegramUsers(msg);
-  start20MinuteJobInterval();
-}, { timezone: "Europe/London" });
+// // Schedule at 11:00 AM/PM London time
+// cron.schedule("01 11 * * *", async () => {
+//   const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.";
+//   log(msg);
+//   sendToTelegramUsers(msg);
+//   start20MinuteJobInterval();
+// }, { timezone: "Europe/London" });
 
 // Schedule at 11:00 PM London time
-cron.schedule("01 23 * * *", async () => {
+cron.schedule("02 23 * * *", async () => {
   const msg = "🕚 Countdown Active: Job Status Update at 11:00 PM London Time.";
   log(msg);
   sendToTelegramUsers(msg);
@@ -175,6 +175,6 @@ start20MinuteJobInterval();
 // setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
 // setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
 // setInterval(fetchAndStoreJobs, 1000); // every 1 second
-//setInterval(fetchAndStoreJobs, 40 * 60 * 1000); // every 40 minutes
+setInterval(fetchAndStoreJobs, 10 * 60 * 1000); // every 10 minutes
 
 module.exports = { getJobMessage }; 
