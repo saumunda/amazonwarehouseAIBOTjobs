@@ -175,6 +175,6 @@ start20MinuteJobInterval();
 // setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
 // setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
 // setInterval(fetchAndStoreJobs, 1000); // every 1 second
-setInterval(fetchAndStoreJobs, 10 * 60 * 1000); // every 10 minutes
+// setInterval(fetchAndStoreJobs, 10 * 60 * 1000); // every 10 minutes
 
 module.exports = { getJobMessage }; 
