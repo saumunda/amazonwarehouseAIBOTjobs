@@ -169,8 +169,8 @@ cron.schedule("02 23 * * *", async () => {
 }, { timezone: "Europe/London" });
 
 // Initial run on server start (optional)
-fetchAndStoreJobs();
-start20MinuteJobInterval();
+// fetchAndStoreJobs();
+// start20MinuteJobInterval();
 
 // setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
 // setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
