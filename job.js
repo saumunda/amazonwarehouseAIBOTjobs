@@ -142,13 +142,13 @@ const start20MinuteJobInterval = () => {
   const intervalId = setInterval(async () => {
     await fetchAndStoreJobs();
     count++;
-    if (count >= 20) {
+    if (count >= 1200) {
       clearInterval(intervalId);
       const msg = "💤 System Standby... 🖥️ Scheduled Job Check completed.";
       log(msg);
       sendToTelegramUsers(msg);
     }
-  }, 60 * 1000); // every 1 minute
+  }, 1000); // every 1 minute
 };
 
 // ✅ Schedule at 11:01 AM London time
@@ -169,5 +169,6 @@ cron.schedule("2 23 * * *", async () => {
 
 // Optional: run once at server start
 fetchAndStoreJobs();
+start20MinuteJobInterval();
 
 module.exports = { getJobMessage };
