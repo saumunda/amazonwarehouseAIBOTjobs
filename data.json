@@ -1,0 +1,25 @@
+{
+  "jobs": [
+    {
+      "jobId": "12345",
+      "jobTitle": "Software Developer",
+      "jobType": "full-time",
+      "employmentType": "permanent",
+      "city": "London",
+      "state": "Greater London",
+      "totalPayRateMin": 30000,
+      "totalPayRateMax": 45000
+    },
+    {
+      "jobId": "12346",
+      "jobTitle": "Part-time Retail Assistant",
+      "jobType": "part-time",
+      "employmentType": "temporary",
+      "city": "Manchester",
+      "state": "Greater Manchester",
+      "totalPayRateMin": 9000,
+      "totalPayRateMax": 12000
+    }
+  ],
+  "lastFetched": "2025-06-14T22:00:00Z"
+}
