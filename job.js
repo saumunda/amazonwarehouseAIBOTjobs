@@ -13,10 +13,9 @@ const API_URL = "https://qy64m4juabaffl7tjakii4gdoa.appsync-api.eu-west-1.amazon
 const AUTH_TOKEN = `Bearer ${process.env.AUTH_TOKEN}`;
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_IDS = [
-  process.env.TELEGRAM_USER_ID,
+  //process.env.TELEGRAM_USER_ID,
   process.env.TELEGRAM_USER_ID2,
 ];
-const DATA_FILE = path.join(__dirname, "data.json");
 const LAST_MSG_FILE = path.join(__dirname, "lastMessage.json");
 
 const GRAPHQL_QUERY = {
@@ -133,48 +132,42 @@ const fetchAndStoreJobs = async () => {
   }
 };
 
-// 🛠 1-minute interval for 10 minutes
+// ✅ 1-minute interval for 20 minutes
 const start20MinuteJobInterval = () => {
-  const msg = "⏳ Started 1-second interval fetch for 20 minutes...";
+  const msg = "⏳ Started 1-minute interval fetch for 20 minutes...";
   log(msg);
   sendToTelegramUsers(msg);
-  
+
   let count = 0;
   const intervalId = setInterval(async () => {
     await fetchAndStoreJobs();
     count++;
-    if (count >= 1200) {  // Stop after 1200 fetches (20 minutes)
+    if (count >= 20) {
       clearInterval(intervalId);
-      const msg = "💤 System Standby... 🖥️ Scheduled Job Check: After 12:00 HRS London Time.";
+      const msg = "💤 System Standby... 🖥️ Scheduled Job Check completed.";
       log(msg);
       sendToTelegramUsers(msg);
     }
-    }, 1000); // 1 sec intervals
+  }, 60 * 1000); // every 1 minute
 };
 
-// // Schedule at 11:00 AM/PM London time
-// cron.schedule("01 11 * * *", async () => {
-//   const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.";
-//   log(msg);
-//   sendToTelegramUsers(msg);
-//   start20MinuteJobInterval();
-// }, { timezone: "Europe/London" });
-
-// Schedule at 11:00 PM London time
-cron.schedule("02 23 * * *", async () => {
-  const msg = "🕚 Countdown Active: Job Status Update at 11:00 PM London Time.";
+// ✅ Schedule at 11:01 AM London time
+cron.schedule("1 11 * * *", async () => {
+  const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.";
   log(msg);
-  sendToTelegramUsers(msg);
+  await sendToTelegramUsers(msg);
   start20MinuteJobInterval();
 }, { timezone: "Europe/London" });
 
-// Initial run on server start (optional)
+// ✅ Schedule at 11:01 PM London time
+cron.schedule("1 23 * * *", async () => {
+  const msg = "🌙 Countdown Active: Job Status Update at 11:00 PM London Time.";
+  log(msg);
+  await sendToTelegramUsers(msg);
+  start20MinuteJobInterval();
+}, { timezone: "Europe/London" });
+
+// Optional: run once at server start
 fetchAndStoreJobs();
- start20MinuteJobInterval();
 
-// setInterval(fetchAndStoreJobs, 1 * 60 * 1000); // every min
-// setInterval(fetchAndStoreJobs, 30 * 1000); // every 10 sec
-// setInterval(fetchAndStoreJobs, 1000); // every 1 second
-// setInterval(fetchAndStoreJobs, 10 * 60 * 1000); // every 10 minutes
-
-module.exports = { getJobMessage }; 
+module.exports = { getJobMessage };
