@@ -1,0 +1,28 @@
+name: Deploy and Create .env
+
+on:
+  push:
+    branches:
+      - main  # or main, depending on your default branch
+
+jobs:
+  create_env_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🔐 Create .env file from secrets
+        uses: ozaytsev86/create-env-file@v2.0.0
+        with:
+          ENV_TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          ENV_AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+          ENV_TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
+          ENV_TELEGRAM_USER_ID2: ${{ secrets.TELEGRAM_USER_ID2 }}
+
+      - name: 📥 Install dependencies
+        run: npm install
+
+      - name: 🚀 Start the app (adjust as needed)
+        run: npm start
