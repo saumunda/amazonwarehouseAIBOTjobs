@@ -16,10 +16,11 @@ jobs:
       - name: 🔐 Create .env file from GitHub secrets
         uses: ozaytsev86/create-env-file@v2.0.0
         with:
-          ENV_TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          ENV_AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-          ENV_TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
-          ENV_TELEGRAM_USER_ID2: ${{ secrets.TELEGRAM_USER_ID2 }}
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
+          TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID2 }}
+          TELEGRAM_USER_ID3: ${{ secrets.TELEGRAM_USER_ID3 }}
 
       - name: 📥 Install dependencies
         run: npm install
