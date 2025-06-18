@@ -1,29 +1,28 @@
-name: Deploy and Create .env
+name: Deploy with Manual .env
 
 on:
   push:
     branches:
-      - main  # or master, depending on your branch
+      - main
 
 jobs:
-  create_env_and_deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📦 Checkout repository
+      - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: 🔐 Create .env file from GitHub secrets
-        uses: ozaytsev86/create-env-file@v2.0.0
-        with:
-          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
-          TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID2 }}
-          TELEGRAM_USER_ID3: ${{ secrets.TELEGRAM_USER_ID3 }}
-
-      - name: 📥 Install dependencies
+      - name: 🔐 Create .env file manually
+        run: |
+          echo "TELEGRAM_TOKEN=${{ secrets.TELEGRAM_TOKEN }}" >> .env
+          echo "AUTH_TOKEN=${{ secrets.AUTH_TOKEN }}" >> .env
+          echo "TELEGRAM_USER_ID=${{ secrets.TELEGRAM_USER_ID }}" >> .env
+          echo "TELEGRAM_USER_ID2=${{ secrets.TELEGRAM_USER_ID2 }}" >> .env
+          cat .env  # just to confirm it's written (remove this if you don't want to expose values)
+      
+      - name: 📦 Install dependencies
         run: npm install
 
-      - name: 🚀 Start app (or run tests)
+      - name: 🚀 Run the app (or deploy)
         run: npm start
