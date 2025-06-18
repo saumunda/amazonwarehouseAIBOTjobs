@@ -3,7 +3,7 @@ name: Deploy and Create .env
 on:
   push:
     branches:
-      - master  # or master, depending on your branch
+      - main  # or master, depending on your branch
 
 jobs:
   create_env_and_deploy:
