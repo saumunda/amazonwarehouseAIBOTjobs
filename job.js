@@ -55,7 +55,7 @@ const sendToTelegramUsers = async (message) => {
       await axios.post(url, {
         chat_id: id,
         text: message,
-        parse_mode: "Markdown", // 🟢 Add this line
+        parse_mode: "Markdown",
       });
     } catch (err) {
       log(`❌ Failed to send message to ${id}: ${err.message}`);
@@ -63,7 +63,8 @@ const sendToTelegramUsers = async (message) => {
   }
 };
 
-const getJobMessage = async () =>  {
+const getJobMessage = async () => {
+  const supportLine = "\n\n[☕️ Support this bot](https://coff.ee/amazonwarehousejobbot)";
   try {
     const response = await axios.post(API_URL, GRAPHQL_QUERY, {
       headers: {
@@ -82,20 +83,20 @@ const getJobMessage = async () =>  {
     });
 
     if (partTimeJobs.length > 0) {
-      return `✅ Part-time jobs found:\n` + partTimeJobs.map(job =>
-        `• ${job.jobTitle} (${job.city})`
-      ).join("\n");
+      return `✅ Part-time jobs found:\n` +
+        partTimeJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") +
+        supportLine;
     } else if (fullTimeJobs.length > 0) {
-      return `❗ Only full-time jobs available:\n` + fullTimeJobs.map(job =>
-        `• ${job.jobTitle} (${job.city})`
-      ).join("\n");
+      return `❗ Only full-time jobs available:\n` +
+        fullTimeJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") +
+        supportLine;
     } else if (otherJobs.length > 0) {
       const jobTypes = [...new Set(otherJobs.map(job => job.jobType))];
-      return `📌 Other job(s) available [${jobTypes.join(", ")}]:\n` + otherJobs.map(job =>
-        `• ${job.jobTitle} (${job.city})`
-      ).join("\n");
+      return `📌 Other job(s) available [${jobTypes.join(", ")}]:\n` +
+        otherJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") +
+        supportLine;
     } else {
-      return `❌ No jobs found.\n\n[☕️ Buy me a coffee, support the bot](https://coff.ee/amazonwarehousejobbot)`;
+      return `❌ No jobs found.${supportLine}`;
     }
 
   } catch (err) {
@@ -117,7 +118,6 @@ if (fs.existsSync(LAST_MSG_FILE)) {
 const fetchAndStoreJobs = async () => {
   try {
     const jobMsg = await getJobMessage();
-
     if (jobMsg !== lastMessageSent) {
       log("🔁 Sending updated job message...");
       await sendToTelegramUsers(jobMsg);
@@ -133,9 +133,9 @@ const fetchAndStoreJobs = async () => {
   }
 };
 
-// ✅ 1-minute interval for 20 minutes
+// ✅ 20-minute job fetch at 1-second intervals
 const start20MinuteJobInterval = () => {
-  const msg = "⏳ Started 1-minute interval fetch for 20 minutes...";
+  const msg = "⏳ Started 1-second interval fetch for 20 minutes...";
   log(msg);
   sendToTelegramUsers(msg);
 
@@ -149,26 +149,26 @@ const start20MinuteJobInterval = () => {
       log(msg);
       sendToTelegramUsers(msg);
     }
-  }, 1000); // every 1 minute
+  }, 1000); // every second
 };
 
-// ✅ Schedule at 11:01 AM London time
+// ⏰ Schedule at 11:02 AM London time
 cron.schedule("2 11 * * *", async () => {
-  const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:00 AM London Time.";
+  const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:02 AM London Time.";
   log(msg);
   await sendToTelegramUsers(msg);
   start20MinuteJobInterval();
 }, { timezone: "Europe/London" });
 
-// ✅ Schedule at 11:01 PM London time
+// ⏰ Schedule at 11:02 PM London time
 cron.schedule("2 23 * * *", async () => {
-  const msg = "🌙 Countdown Active: Job Status Update at 11:01 PM London Time.";
+  const msg = "🌙 Countdown Active: Job Status Update at 11:02 PM London Time.";
   log(msg);
   await sendToTelegramUsers(msg);
   start20MinuteJobInterval();
 }, { timezone: "Europe/London" });
 
-// Optional: run once at server start
+// ▶️ Optional initial trigger on server start
 fetchAndStoreJobs();
 start20MinuteJobInterval();
 
