@@ -64,7 +64,7 @@ const sendToTelegramUsers = async (message) => {
 };
 
 const getJobMessage = async () => {
-  const supportLine = "\n\n[☕️ Support this bot](https://buymeacoffee.com/amazonwarehousejobbot)";
+  const supportLine = "\n\n[☕️ Support this bot](https://buymeacoffee.com/amazonjobbot)";
   try {
     const response = await axios.post(API_URL, GRAPHQL_QUERY, {
       headers: {
@@ -151,6 +151,27 @@ const start20MinuteJobInterval = () => {
     }
   }, 1000); // every second
 };
+
+// ✅ 20-minute job fetch at 1-second intervals
+const startJobInterval = () => {
+  const msg = "⏳ Started 20-second interval fetch for 20 minutes...";
+  log(msg);
+  sendToTelegramUsers(msg);
+
+  let count = 0;
+  const intervalId = setInterval(async () => {
+    await fetchAndStoreJobs();
+    count++;
+    if (count >= 60) { // 20 minutes ÷ 20 seconds = 60 cycles
+      clearInterval(intervalId);
+      const msg = "💤 System Standby... 🖥️ Scheduled Job Check completed.";
+      log(msg);
+      sendToTelegramUsers(msg);
+      // Optionally restart or move to standby
+    }
+  }, 20 * 1000); // every 20 seconds
+};
+
 
 // ⏰ Schedule at 11:02 AM London time
 cron.schedule("2 11 * * *", async () => {
