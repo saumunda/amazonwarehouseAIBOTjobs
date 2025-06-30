@@ -94,7 +94,7 @@ const getJobMessage = async () =>  {
         `• ${job.jobTitle} (${job.city})`
       ).join("\n");
     } else {
-      return "❌ No jobs found.";
+      return `❌ No jobs found.\n\n☕️ Buy me a coffee, support the bot:\nhttps://coff.ee/amazonwarehousejobbot`;
     }
 
   } catch (err) {
