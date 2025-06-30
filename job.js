@@ -55,6 +55,7 @@ const sendToTelegramUsers = async (message) => {
       await axios.post(url, {
         chat_id: id,
         text: message,
+        parse_mode: "Markdown", // 🟢 Add this line
       });
     } catch (err) {
       log(`❌ Failed to send message to ${id}: ${err.message}`);
@@ -94,7 +95,7 @@ const getJobMessage = async () =>  {
         `• ${job.jobTitle} (${job.city})`
       ).join("\n");
     } else {
-      return `❌ No jobs found.\n\n☕️ Buy me a coffee, support the bot:\nhttps://coff.ee/amazonwarehousejobbot`;
+      return `❌ No jobs found.\n\n[☕️ Buy me a coffee, support the bot](https://coff.ee/amazonwarehousejobbot)`;
     }
 
   } catch (err) {
