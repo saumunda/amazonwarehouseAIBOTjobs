@@ -64,7 +64,7 @@ const sendToTelegramUsers = async (message) => {
 };
 
 const getJobMessage = async () => {
-  const supportLine = "\n\n[☕️ Support this bot](https://coff.ee/amazonwarehousejobbot)";
+  const supportLine = "\n\n[☕️ Support this bot](https://buymeacoffee.com/amazonwarehousejobbot)";
   try {
     const response = await axios.post(API_URL, GRAPHQL_QUERY, {
       headers: {
