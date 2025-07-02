@@ -64,9 +64,33 @@ const sendToTelegramUsers = async (message) => {
 };
 
 const getJobMessage = async () => {
-  const supportLine = "\n\n[☕️ Support this bot](https://www.buymeacoffee.com/amazonjobbot)";
   try {
-    const response = await axios.post(API_URL, GRAPHQL_QUERY, {
+    const response = await axios.post(API_URL, {
+      operationName: "searchJobCardsByLocation",
+      query: `query searchJobCardsByLocation($searchJobRequest: SearchJobRequest!) {
+        searchJobCardsByLocation(searchJobRequest: $searchJobRequest) {
+          jobCards {
+            jobId
+            jobTitle
+            jobType
+            employmentType
+            city
+            state
+            totalPayRateMin
+            totalPayRateMax
+          }
+        }
+      }`,
+      variables: {
+        searchJobRequest: {
+          locale: "en-GB",
+          country: "United Kingdom",
+          keyWords: "",
+          equalFilters: [],
+          rangeFilters: [],
+        },
+      },
+    }, {
       headers: {
         "Content-Type": "application/json",
         Authorization: AUTH_TOKEN,
@@ -82,24 +106,30 @@ const getJobMessage = async () => {
       return type !== "part-time" && type !== "full-time";
     });
 
+    const supportLine = "\n\n[☕️ Support this bot](https://www.buymeacoffee.com/amazonjobbot)";
+
     if (partTimeJobs.length > 0) {
       return `✅ Part-time jobs found:\n` +
         partTimeJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") +
+        supportLine;
     } else if (fullTimeJobs.length > 0) {
       return `❗ Only full-time jobs available:\n` +
         fullTimeJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") +
+        supportLine;
     } else if (otherJobs.length > 0) {
       const jobTypes = [...new Set(otherJobs.map(job => job.jobType))];
       return `📌 Other job(s) available [${jobTypes.join(", ")}]:\n` +
         otherJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") +
+        supportLine;
     } else {
-      return `❌ No jobs found.${supportLine}`;
+      return `❌ No jobs found.` + supportLine;
     }
 
   } catch (err) {
     return "❌ Error fetching job data: " + err.message;
   }
 };
+
 
 // Load last message if it exists
 let lastMessageSent = "";
