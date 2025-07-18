@@ -166,6 +166,9 @@ fetchAndStoreJobs(true);
 
 // Express server for health check
 app.get("/", (req, res) => res.send("✅ Job Bot is running."));
-app.listen(process.env.PORT || 3000, () => log("🚀 Server started."));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => log(`🚀 Server started on port ${PORT}`));
+
 
 module.exports = { getJobMessage };
