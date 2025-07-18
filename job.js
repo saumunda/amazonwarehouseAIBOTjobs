@@ -218,6 +218,5 @@ cron.schedule("2 23 * * *", async () => {
 
 // ▶️ Optional initial trigger on server start
 fetchAndStoreJobs();
-start20MinuteJobInterval();
 
 module.exports = { getJobMessage };
