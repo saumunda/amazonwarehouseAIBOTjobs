@@ -179,35 +179,6 @@ const start20MinuteJobInterval = () => {
   }, 1000); // every second
 };
 
-// ✅ 20-minute job fetch at 1-second intervals
-const startJobInterval = () => {
-  const msg = "⏳ Started 20-second interval fetch for 20 minutes...";
-  log(msg);
-  sendToTelegramUsers(msg);
-
-  let count = 0;
-  const intervalId = setInterval(async () => {
-    await fetchAndStoreJobs();
-    count++;
-    if (count >= 60) { // 20 minutes ÷ 20 seconds = 60 cycles
-      clearInterval(intervalId);
-      const msg = "💤 System Standby... 🖥️ Scheduled Job Check completed.";
-      log(msg);
-      sendToTelegramUsers(msg);
-      // Optionally restart or move to standby
-    }
-  }, 20 * 1000); // every 20 seconds
-};
-
-
-// ⏰ Schedule at 11:02 AM London time
-cron.schedule("2 11 * * *", async () => {
-  const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:02 AM London Time.";
-  log(msg);
-  await sendToTelegramUsers(msg);
-  start20MinuteJobInterval();
-}, { timezone: "Europe/London" });
-
 // ⏰ Schedule at 11:02 PM London time
 cron.schedule("2 23 * * *", async () => {
   const msg = "🌙 Countdown Active: Job Status Update at 11:02 PM London Time.";
@@ -217,6 +188,6 @@ cron.schedule("2 23 * * *", async () => {
 }, { timezone: "Europe/London" });
 
 // ▶️ Optional initial trigger on server start
-fetchAndStoreJobs();
+
 
 module.exports = { getJobMessage };
