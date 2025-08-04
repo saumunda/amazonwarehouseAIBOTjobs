@@ -18,6 +18,33 @@ const TELEGRAM_IDS = [
 ];
 const LAST_MSG_FILE = path.join(__dirname, "lastMessage.json");
 
+const GRAPHQL_QUERY = {
+  operationName: "searchJobCardsByLocation",
+  query: `query searchJobCardsByLocation($searchJobRequest: SearchJobRequest!) {
+    searchJobCardsByLocation(searchJobRequest: $searchJobRequest) {
+      jobCards {
+        jobId
+        jobTitle
+        jobType
+        employmentType
+        city
+        state
+        totalPayRateMin
+        totalPayRateMax
+      }
+    }
+  }`,
+  variables: {
+    searchJobRequest: {
+      locale: "en-GB",
+      country: "United Kingdom",
+      keyWords: "",
+      equalFilters: [],
+      rangeFilters: [],
+    },
+  },
+};
+
 const log = (msg) => console.log(`[${new Date().toISOString()}] ${msg}`);
 
 const sendToTelegramUsers = async (message) => {
@@ -71,22 +98,29 @@ const getJobMessage = async () => {
     });
 
     const jobs = response.data?.data?.searchJobCardsByLocation?.jobCards || [];
+
     const partTimeJobs = jobs.filter(job => job.jobType?.toLowerCase() === "part-time");
     const fullTimeJobs = jobs.filter(job => job.jobType?.toLowerCase() === "full-time");
-    const otherJobs = jobs.filter(job => !["part-time", "full-time"].includes(job.jobType?.toLowerCase()));
+    const otherJobs = jobs.filter(job => {
+      const type = job.jobType?.toLowerCase();
+      return type !== "part-time" && type !== "full-time";
+    });
 
     const supportLine = "\n\n[☕️ Support this bot](https://www.buymeacoffee.com/amazonjobbot)";
 
     if (partTimeJobs.length > 0) {
       return `✅ Part-time jobs found:\n` +
-        partTimeJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") + supportLine;
+        partTimeJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") +
+        supportLine;
     } else if (fullTimeJobs.length > 0) {
       return `❗ Only full-time jobs available:\n` +
-        fullTimeJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") + supportLine;
+        fullTimeJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") +
+        supportLine;
     } else if (otherJobs.length > 0) {
       const jobTypes = [...new Set(otherJobs.map(job => job.jobType))];
       return `📌 Other job(s) available [${jobTypes.join(", ")}]:\n` +
-        otherJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") + supportLine;
+        otherJobs.map(job => `• ${job.jobTitle} (${job.city})`).join("\n") +
+        supportLine;
     } else {
       return `❌ No jobs found.` + supportLine;
     }
@@ -96,7 +130,8 @@ const getJobMessage = async () => {
   }
 };
 
-// Load last message
+
+// Load last message if it exists
 let lastMessageSent = "";
 if (fs.existsSync(LAST_MSG_FILE)) {
   try {
@@ -107,68 +142,83 @@ if (fs.existsSync(LAST_MSG_FILE)) {
   }
 }
 
-// Boost interval control
-let isBoostActive = false;
-
-const start20MinBoostInterval = () => {
-  if (isBoostActive) return; // avoid overlap
-  isBoostActive = true;
-
-  log("⚡ 20-minute boosted job check started (every 20 seconds)...");
-  sendToTelegramUsers("⚡ 20-minute boosted job check started (every 20 seconds)...");
-
-  let count = 0;
-  const intervalId = setInterval(async () => {
-    await fetchAndStoreJobs(false); // silent mode
-    count++;
-    if (count >= 60) { // 60 * 20s = 20 minutes
-      clearInterval(intervalId);
-      isBoostActive = false;
-      log("💤 20-minute boost finished. Back to normal schedule.");
-      sendToTelegramUsers("💤 20-minute boost finished. Back to normal schedule.");
-    }
-  }, 20 * 1000);
-};
-
-const fetchAndStoreJobs = async (checkNew = true) => {
+const fetchAndStoreJobs = async () => {
   try {
     const jobMsg = await getJobMessage();
-    if (checkNew && jobMsg !== lastMessageSent) {
+    if (jobMsg !== lastMessageSent) {
       log("🔁 Sending updated job message...");
       await sendToTelegramUsers(jobMsg);
       lastMessageSent = jobMsg;
       fs.writeFileSync(LAST_MSG_FILE, JSON.stringify({ message: jobMsg }, null, 2));
-
-      // Start 20-min boost when a new job message arrives
-      start20MinBoostInterval();
-    } else if (checkNew) {
+    } else {
       log("⏸ No new job update to send.");
     }
   } catch (err) {
-    const msg = "❌ Error running job check: " + err.message;
+    const msg = "❌ Error running scheduled job check: " + err.message;
     log(msg);
     await sendToTelegramUsers(msg);
   }
 };
 
-// Regular 5-minute job checks
-cron.schedule("*/5 * * * *", async () => {
-  if (!isBoostActive) {
-    log("🔄 Running 5-minute job check...");
-    await fetchAndStoreJobs(true);
-  } else {
-    log("⏸ Skipping normal check, boost mode active.");
-  }
+// ✅ 20-minute job fetch at 1-second intervals
+const start20MinuteJobInterval = () => {
+  const msg = "⏳ Started 1-second interval fetch for 20 minutes...";
+  log(msg);
+  sendToTelegramUsers(msg);
+
+  let count = 0;
+  const intervalId = setInterval(async () => {
+    await fetchAndStoreJobs();
+    count++;
+    if (count >= 1200) {
+      clearInterval(intervalId);
+      const msg = "💤 System Standby... 🖥️ Scheduled Job Check completed.";
+      log(msg);
+      sendToTelegramUsers(msg);
+    }
+  }, 1000); // every second
+};
+
+// ✅ 20-minute job fetch at 1-second intervals
+const startJobInterval = () => {
+  const msg = "⏳ Started 20-second interval fetch for 20 minutes...";
+  log(msg);
+  sendToTelegramUsers(msg);
+
+  let count = 0;
+  const intervalId = setInterval(async () => {
+    await fetchAndStoreJobs();
+    count++;
+    if (count >= 60) { // 20 minutes ÷ 20 seconds = 60 cycles
+      clearInterval(intervalId);
+      const msg = "💤 System Standby... 🖥️ Scheduled Job Check completed.";
+      log(msg);
+      sendToTelegramUsers(msg);
+      // Optionally restart or move to standby
+    }
+  }, 20 * 1000); // every 20 seconds
+};
+
+
+
+// ⏰ Schedule at 11:02 AM London time
+cron.schedule("2 11 * * *", async () => {
+  const msg = "🕚 Clock’s Ticking! ⚡ Job Check Set for 11:02 AM London Time.";
+  log(msg);
+  await sendToTelegramUsers(msg);
+  start20MinuteJobInterval();
 }, { timezone: "Europe/London" });
 
-// Initial run at startup
-fetchAndStoreJobs(true);
+// ⏰ Schedule at 11:02 PM London time
+cron.schedule("2 23 * * *", async () => {
+  const msg = "🌙 Countdown Active: Job Status Update at 11:02 PM London Time.";
+  log(msg);
+  await sendToTelegramUsers(msg);
+  start20MinuteJobInterval();
+}, { timezone: "Europe/London" });
 
-// Express server for health check
-app.get("/", (req, res) => res.send("✅ Job Bot is running."));
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => log(`🚀 Server started on port ${PORT}`));
-
+// ▶️ Optional initial trigger on server start
+fetchAndStoreJobs();
+start20MinuteJobInterval();
 
 module.exports = { getJobMessage };
