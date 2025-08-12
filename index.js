@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const axios = require("axios");
-const { getJobMessage } = require("./job1");
+const { getJobMessage } = require("./job");
 
 // ---- Config ----
 const TOKEN = process.env.TELEGRAM_TOKEN;
@@ -145,3 +145,4 @@ const shutdown = () => {
 };
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
+
